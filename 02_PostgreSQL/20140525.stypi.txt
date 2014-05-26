@@ -1,0 +1,311 @@
+# https://code.stypi.com/akimatter/fukouka7db03.md
+
+
+「７つのデータベース７つの世界」勉強会03 
+
+第2章PostgreSQL2日目
+
+
+book=# SELECT venue_id, count(*) FROM events
+GROUP BY venue_id
+ORDER BY venue_id desc NULLS FIRST;
+ venue_id | count 
+----------+-------
+          |     3
+        4 |     1
+        2 |     2
+        1 |     1
+(4 rows)
+
+book=# SELECT venue_id, count(*) FROM events
+GROUP BY venue_id
+ORDER BY venue_id desc NULLS LAST;
+ venue_id | count 
+----------+-------
+        4 |     1
+        2 |     2
+        1 |     1
+          |     3
+(4 rows)
+
+book=# SELECT venue_id, count(*) FROM events
+GROUP BY venue_id
+ORDER BY venue_id asc NULLS LAST;
+ venue_id | count 
+----------+-------
+        1 |     1
+        2 |     2
+        4 |     1
+          |     3
+(4 rows)
+
+book=# SELECT venue_id, count(*) FROM events
+GROUP BY venue_id
+ORDER BY venue_id asc NULLS FIRST;
+ venue_id | count 
+----------+-------
+          |     3
+        1 |     1
+        2 |     2
+        4 |     1
+(4 rows)
+
+book=# SELECT venue_id, count(*) FROM events
+GROUP BY venue_id
+ORDER BY venue_id is not null , venue_id DESC;
+
+
+
+order by に "IS NULL" とか "IS NOT NULL"も使える
+
+
+book=# SELECT venue_id, count(*) FROM events GROUP BY venue_id ORDER BY venue_id IS NOT NULL;
+ venue_id | count 
+----------+-------
+          |     3
+        2 |     2
+        1 |     1
+        4 |     1
+(4 rows)
+
+book=# SELECT venue_id, count(*) FROM events GROUP BY venue_id ORDER BY venue_id IS NULL;
+ venue_id | count 
+----------+-------
+        2 |     2
+        1 |     1
+        4 |     1
+          |     3
+(4 rows)
+
+book=# SELECT venue_id, count(*) FROM events GROUP BY venue_id ORDER BY venue_id IS NULL DESC;
+ venue_id | count 
+----------+-------
+          |     3
+        2 |     2
+        1 |     1
+        4 |     1
+(4 rows)
+
+book=# SELECT venue_id, count(*) FROM events GROUP BY venue_id ORDER BY venue_id IS NOT NULL DESC;
+ venue_id | count 
+----------+-------
+        2 |     2
+        1 |     1
+        4 |     1
+          |     3
+(4 rows)
+
+### 23
+
+SELECT venue_id, count(*)
+FROM events
+GROUP BY venue_id
+HAVING count(*) >= 2 AND venue_id IS NOT NULL;
+
+SELECT venue_id FROM events GROUP BY venue_id;
+
+SELECT DISTINCT venue_id FROM events;
+
+
+### 24
+
+SELECT title, venue_id, count(*) FROM events GROUP BY venue_id;
+
+SELECT title, count(*) OVER (PARTITION BY venue_id) FROM events;
+
+
+### 25
+
+BEGIN TRANSACTION;
+  DELETE FROM events;
+ROLLBACK;
+SELECT * FROM events;
+
+BEGIN TRANSACTION;
+  UPDATE account SET total=total+5000.0 WHERE accout_id=1337;
+  UPDATE account SET total=total-5000.0 WHERE accout_id=45887;
+END;
+
+
+
+http://www.postgresql.jp/document/8.2/html/sql-start-transaction.html
+
+
+
+### 27
+
+http://pragprog.com/titles/rwdata/source_code
+
+--- code/postgres/add_event.sql
+
+CREATE OR REPLACE FUNCTION add_event( title text, starts timestamp,
+  ends timestamp, venue text, postal varchar(9), country char(2) )
+RETURNS boolean AS $$
+DECLARE
+  did_insert boolean := false;
+  found_count integer;
+  the_venue_id integer;
+BEGIN
+  SELECT venue_id INTO the_venue_id
+  FROM venues v
+  WHERE v.postal_code=postal AND v.country_code=country AND v.name ILIKE venue
+  LIMIT 1;
+
+  IF the_venue_id IS NULL THEN
+    INSERT INTO venues (name, postal_code, country_code)
+    VALUES (venue, postal, country)
+    RETURNING venue_id INTO the_venue_id;
+
+    did_insert := true;
+  END IF;
+
+  -- Note: not an “error”, as in some programming languages
+  RAISE NOTICE 'Venue found %', the_venue_id;
+
+  INSERT INTO events (title, starts, ends, venue_id)
+  VALUES (title, starts, ends, the_venue_id);
+
+  RETURN did_insert;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+### 28
+
+CREATE TABLE logs (
+ event_id integer,
+ old_title varchar(255),
+ old_starts timestamp,
+ old_ends timestamp,
+ logged_at timestamp DEFAULT current_timestamp
+);
+
+CREATE OR REPLACE FUNCTION log_event() RETURNS trigger AS $$
+DECLARE
+BEGIN
+  INSERT INTO logs (event_id, old_title, old_starts, old_ends)
+  VALUES (OLD.event_id, OLD.title, OLD.starts, OLD.ends);
+  RAISE NOTICE 'Someone just changed event #%', OLD.event_id;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER log_events
+  AFTER UPDATE ON events
+  FOR EACH ROW EXECUTE PROCEDURE log_event();
+
+
+
+
+CREATE VIEW holidays AS
+  SELECT event_id AS holiday_id, title AS name, starts AS date
+  FROM events
+  WHERE title LIKE '%Day%' AND venue_id IS NULL;
+
+
+### 30
+
+SELECT name, to_char(date, 'Month DD, YYYY') AS date
+FROM holidays
+WHERE date <= '2012-04-01';
+
+
+ALTER TABLE events
+ADD colors text ARRAY;
+
+UPDATE holidays SET colors = '{"red", "green"}' where name = 'Christmas Day';
+
+
+### 31
+
+EXPLAIN VERBOSE
+  SELECT *
+  FROM holidays;
+
+EXPLAIN VERBOSE
+  SELECT event_id AS holiday_id, title AS name, starts AS date, colors
+  FROM events
+  WHERE title LIKE '%Day%' AND venue_id IS NULL;
+
+### 32
+
+SELECT extract(year from starts) as year,
+  extract(month from starts) as month, count(*)
+FROM events
+GROUP BY year, month;
+
+
+### 33
+
+CREATE TEMPORARY TABLE month_count(month INT);
+INSERT INTO month_count VALUES (1),(2),(3),(4),(5),(6),(7),(8),(9),(10),(11),(12);
+
+SELECT * FROM crosstab(
+  'SELECT extract(year from starts) as year,
+    extract(month from starts) as month, count(*)
+   FROM events
+   GROUP BY year, month',
+  'SELECT * FROM month_count'
+);
+ERROR:  a column definition list is required for functions returning "record"
+
+
+SELECT * FROM crosstab(
+  'SELECT extract(year from starts) as year,
+    extract(month from starts) as month, count(*)
+   FROM events
+   GROUP BY year, month ORDER BY year, month',
+  'SELECT * FROM month_count'
+) AS (
+  year int,
+  jan int, feb int, mar int, apr int, may int, jun int,
+  jul int, aug int, sep int, oct int, nov int, dec int
+) ORDER BY year;
+
+
+
+
+
+
+
+
+
+やってみよう 
+
+
+1.venuesテーブルのDELETEを捕捉して・・・・・
+
+CREATE RULE delete_venues AS ON DELETE TO venues DO INSTEAD
+  UPDATE venues
+  SET active = FALSE
+  WHERE venue_id = OLD.venue_id;
+
+2.
+SELECT * FROM crosstab(
+  'SELECT extract(year from starts) as year,
+    extract(month from starts) as month, count(*)
+   FROM events
+   GROUP BY year, month ORDER BY year, month',
+   'SELECT * FROM generate_series(1,12)'
+) AS (
+  year int,
+  jan int, feb int, mar int, apr int, may int, jun int,
+  jul int, aug int, sep int, oct int, nov int, dec int
+) ORDER BY year;
+
+3.
+
+
+SELECT * FROM crosstab(
+  'SELECT extract(week from starts) as w, extract(dow from starts) as d, count(*) FROM events GROUP BY w, d ORDER BY w',
+	'SELECT * FROM generate_series(0,6)'
+) AS (
+  w int,
+  sun int, mon int, tue int, wed int, thu int, fri int, sat int
+);
+
+
+-- これだと任意の月の日をで表示できない・・・・
+
