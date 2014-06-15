@@ -1,24 +1,36 @@
 
 ### 50
 
+```
 make devrel
+```
 
+```
 dev/dev1/bin/riak start
 dev/dev2/bin/riak start
 dev/dev3/bin/riak start
+```
 
 
 ### 51
 
+```
 dev/dev2/bin/riak-admin join dev1@127.0.0.1
+```
+```
 dev/dev3/bin/riak-admin join dev2@127.0.0.1
+```
 
+```
 http://localhost:8091/stats
+```
 
 
 ### 52
 
+```
 dev/dev2/bin/riak stop
+```
 
 ```
 curl http://localhost:8091/ping
