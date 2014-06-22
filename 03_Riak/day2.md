@@ -8,7 +8,8 @@
 $ gem install riak-client json
 ```
 
-``` hotel.rb
+hotel.rb
+``` ruby:hotel.rb
 # generate loads and loads of rooms with random styles and capacities
 require 'rubygems'
 require 'riak'
@@ -33,6 +34,10 @@ for floor in 1..100
     ro.store
   end
 end
+```
+
+```
+$ ruby hotel.rb
 ```
 
 ## mapreduce入門
