@@ -9,7 +9,7 @@ $ gem install riak-client json
 ```
 
 hotel.rb
-``` ruby:hotel.rb
+```
 # generate loads and loads of rooms with random styles and capacities
 require 'rubygems'
 require 'riak'
@@ -73,14 +73,140 @@ Ctrl-D
 ### 64
 #### ストアドファンクション
 
+```
+curl -X PUT -H "content-type:application/json" \
+http://localhost:10018/buckets/my_function/keys/map_capacity --data @-
+function(v) {
+  var parsed_data = JSON.parse(v.values[0].data);
+  var data = {};
+  data[parsed_data.style] = parsed_data.capacity;
+  return [data];
+}
+```
+
+```
+curl -X POST -H "content-type:application/json" \
+http://localhost:10018/mapred --data @-
+{
+  "inputs":[
+    ["rooms","101"],["rooms","102"],["rooms","103"]
+  ],
+  "query":[
+    {"map":{
+      "language":"javascript",
+      "bucket":"my_functions",
+      "key":"map_capacity"
+    }}
+  ]
+}
+```
+
 #### 組み込み関数
+
+```
+curl -X POST http://localhost:10018/mapred \
+ -H "content-type:application/json" --data @-
+{
+  "inputs":[
+    ["rooms","101"],["rooms","102"],["rooms","103"]
+  ],
+  "query":[
+    {"map":{
+      "language":"javascript",
+      "name":"Riak.mapValueJson"
+    }}
+  ]
+}
+```
 
 #### reduce
 
+```
+curl -X POST -H "content-type:application/json" \
+http://localhost:10018/mapred --data @-
+{
+  "inputs":"rooms",
+  "query":[
+    {"map":{
+      "language":"javascript",
+      "bucket":"my_functions",
+      "key":"map_capacity"
+    }},
+    {"reduce":{
+      "language":"javascript",
+      "source":
+        "function(v) {
+          var totals = {};
+          for (var i in v) {
+            for (var style in v[i]) {
+              if ( totals[style] ) totals[style] += v[i][style];
+              else                 totals[style] = v[i][style];
+            }
+          }
+          return [totals];
+        }"
+    }}
+  ]
+}
+```
+
 #### キーフィルタ
+
+```
+curl -X POST -H "content-type:application/json" \
+http://localhost:10018/mapred --data @-
+{
+  "inputs":{
+    "bucket":"rooms",
+    "key_filters":[["string_to_int"], ["less_than", 1000]]
+  },
+  "query":[
+    {"map":{
+      "language":"javascript",
+      "bucket":"my_functions",
+      "key":"map_capacity"
+    }},
+    {"reduce":{
+      "language":"javascript",
+      "source":
+        "function(v) {
+          var totals = {};
+          for (var i in v) {
+            for (var style in v[i]) {
+              if ( totals[style] ) totals[style] += v[i][style];
+              else                 totals[style] = v[i][style];
+            }
+          }
+          return [totals];
+        }"
+    }}
+  ]
+}
+```
 
 #### mapreduceでリンクウォーキング
 
+```
+curl -X POST -H "content-type:application/json" \
+http://localhost:10018/mapred --data @-
+{
+  "inputs":{
+    "bucket":"cages",
+    "key_filters":[["eq"], ["2"]]
+  },
+  "query":[
+    {"link":{
+      "bucket":"animals",
+      "keep":false
+    }},
+    {"map":{
+      "language":"javascript",
+      "source":
+        "function(v) { return [v]; }"
+    }}
+  ]
+}
+```
 
 ## 整合性と永続性
 
@@ -88,7 +214,27 @@ Ctrl-D
 
 #### ノード/書き込み/読み取り
 
+```
+curl -X PUT http://localhost:10018/buckets/animals/keys \
+ -H "Content-Type: application/json" \
+ -d '{"props":{"n_val":4}}'
+```
+
+```
+dev/dev3/bin/riak stop
+```
+
+```
+curl -i http://localhost:10018/buckets/animals/keys/ace?r=all
+```
+
 #### 書き込みと永続性のある書き込み
+
+```
+curl -X PUT http://localhost:10018/buckets/animals/keys \
+ -H "Content-Type: application/json" \
+ -d '{"props":{"dw":"one"}}'
+```
 
 #### 引き継ぎメモ
 
