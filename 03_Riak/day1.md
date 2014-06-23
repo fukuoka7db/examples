@@ -18,6 +18,8 @@ dev/dev3/bin/riak start
 ulimit -n 4096
 dev/dev2/bin/riak-admin cluster join dev1@127.0.0.1
 dev/dev3/bin/riak-admin cluster join dev1@127.0.0.1
+dev/dev1/bin/riak-admin cluster plan
+dev/dev1/bin/riak-admin cluster commit
 dev/dev1/bin/riak-admin member-status
 ```
 [http://localhost:10018/stats](http://localhost:10018/stats)
