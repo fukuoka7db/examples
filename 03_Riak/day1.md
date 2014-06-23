@@ -15,10 +15,14 @@ dev/dev3/bin/riak start
 ### 51
 
 ```
-dev/dev2/bin/riak-admin join dev1@127.0.0.1
-dev/dev3/bin/riak-admin join dev2@127.0.0.1
+ulimit -n 4096
+dev/dev2/bin/riak-admin cluster join dev1@127.0.0.1
+dev/dev3/bin/riak-admin cluster join dev1@127.0.0.1
+dev/dev1/bin/riak-admin member-status
 ```
 [http://localhost:10018/stats](http://localhost:10018/stats)
+
+dev/dev1/bin/riak-admin member-statusの結果、pendingがなくなっていればOK
 
 ### 52
 
