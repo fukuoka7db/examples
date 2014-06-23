@@ -75,7 +75,7 @@ Ctrl-D
 
 ```
 curl -X PUT -H "content-type:application/json" \
-http://localhost:10018/buckets/my_function/keys/map_capacity --data @-
+http://localhost:10018/buckets/my_functions/keys/map_capacity --data @-
 function(v) {
   var parsed_data = JSON.parse(v.values[0].data);
   var data = {};
@@ -94,7 +94,7 @@ http://localhost:10018/mapred --data @-
   "query":[
     {"map":{
       "language":"javascript",
-      "bucket":"my_function",
+      "bucket":"my_functions",
       "key":"map_capacity"
     }}
   ]
@@ -113,7 +113,7 @@ curl -X POST http://localhost:10018/mapred \
   "query":[
     {"map":{
       "language":"javascript",
-      "name":"Riak.mapValueJson"
+      "name":"Riak.mapValuesJson"
     }}
   ]
 }
@@ -192,7 +192,7 @@ http://localhost:10018/mapred --data @-
 {
   "inputs":{
     "bucket":"cages",
-    "key_filters":[["eq"], ["2"]]
+    "key_filters":[["eq", "2"]]
   },
   "query":[
     {"link":{
