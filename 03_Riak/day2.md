@@ -221,11 +221,41 @@ curl -X PUT http://localhost:10018/buckets/animals/keys \
 ```
 
 ```
+curl -X PUT http://localhost:10018/buckets/animals/keys \
+ -H "Content-Type: application/json" \
+ -d '{"props":{"w":2}}'
+```
+
+```
+curl -X PUT http://localhost:10018/buckets/animals/keys \
+ -H "Content-Type: application/json" \
+ -d '{"props":{"r":3}}'
+```
+
+```
+curl http://localhost:10018/buckets/animals/keys/ace?r=3
+```
+
+```
+curl http://localhost:10018/buckets/animals/keys/ace?r=all
+```
+
+```
 dev/dev3/bin/riak stop
 ```
 
 ```
 curl -i http://localhost:10018/buckets/animals/keys/ace?r=all
+```
+
+```
+curl -i http://localhost:10018/buckets/animals/keys/polly?r=quorum
+```
+
+```
+curl -X PUT http://localhost:10018/buckets/animals/jean?w=0 \
+ -H "Content-Type: application/json" \
+ -d '{"nickname":"Jean", "breed":"Border Collie"}'
 ```
 
 #### 書き込みと永続性のある書き込み
