@@ -215,19 +215,19 @@ http://localhost:10018/mapred --data @-
 #### ノード/書き込み/読み取り
 
 ```
-curl -X PUT http://localhost:10018/buckets/animals/keys \
+curl -X PUT http://localhost:10018/buckets/animals/props \
  -H "Content-Type: application/json" \
  -d '{"props":{"n_val":4}}'
 ```
 
 ```
-curl -X PUT http://localhost:10018/buckets/animals/keys \
+curl -X PUT http://localhost:10018/buckets/animals/props \
  -H "Content-Type: application/json" \
  -d '{"props":{"w":2}}'
 ```
 
 ```
-curl -X PUT http://localhost:10018/buckets/animals/keys \
+curl -X PUT http://localhost:10018/buckets/animals/props \
  -H "Content-Type: application/json" \
  -d '{"props":{"r":3}}'
 ```
@@ -261,7 +261,7 @@ curl -X PUT http://localhost:10018/buckets/animals/jean?w=0 \
 #### 書き込みと永続性のある書き込み
 
 ```
-curl -X PUT http://localhost:10018/buckets/animals/keys \
+curl -X PUT http://localhost:10018/buckets/animals/props \
  -H "Content-Type: application/json" \
  -d '{"props":{"dw":"one"}}'
 ```
