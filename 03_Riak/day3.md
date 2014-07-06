@@ -5,7 +5,7 @@
 ### 実践ベクタークロック
 
 ```
-$curl -X PUT http://localhost:10018/buckets/animals/keys \
+$curl -X PUT http://localhost:10018/buckets/animals/props \
  -H "Content-Type: application/json" \
  -d '{"props":{"allow_mult":true}}'
 ```
@@ -62,17 +62,80 @@ $curl http://localhost:10018/buckets/animals/keys
 
 ### 事前／事後コミットフック
 
+dev/dev1/etc/app.configのjs_source_dirに指定したディレクトリに以下を配置
 
+[https://github.com/fukuoka7db/examples/blob/master/03_Riak/my_validators.js](https://github.com/fukuoka7db/examples/blob/master/03_Riak/my_validators.js)
+
+dev2、dev3にも実施
+
+```
+dev/dev1/bin/riak stop
+dev/dev2/bin/riak stop
+dev/dev3/bin/riak stop
+dev/dev1/bin/riak start
+dev/dev2/bin/riak start
+dev/dev3/bin/riak start
+```
+
+```
+$curl -i -X PUT http://localhost:10018/buckets/animals/props \
+ -H "Content-Type: application/json" \
+ -d '{"props":{"precommit":[{"name" : "good_score"}]}}'
+```
+
+```
+$curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser \
+ -H "Content-Type: application/json" \
+ -d '{"score":5}'
+```
 
 ## Riakの拡張
 ### Riakで全文検索
 
 
+```
+$curl -i -X PUT http://localhost:10018/buckets/animals/props \
+ -H "Content-Type: application/json" \
+ -d '{"props":{"precommit":[{"mod" : "riak_search_kv_hook", "fun" : "precommit"}]}}'
+```
+
+```
+$curl PUT http://localhost:10018/buckets/animals/props
+```
+
+```
+$curl -i -X PUT http://localhost:10018/buckets/animals/keys/dragon \
+ -H "Content-Type: application/json" \
+ -d '{"nickname" : "Dragon", "breed" : "Briard", "score" : 1}'
+$curl -i -X PUT http://localhost:10018/buckets/animals/keys/ace \
+ -H "Content-Type: application/json" \
+ -d '{"nickname" : "The Wonder Dog", "breed" : "German Shepherd", "score" : 3}'
+$curl -i -X PUT http://localhost:10018/buckets/animals/keys/rtt \
+ -H "Content-Type: application/json" \
+ -d '{"nickname" : "Rin Tin Tin", "breed" : "German Shepherd", "score" : 4}'
+```
+
+```
+$curl PUT http://localhost:10018/solr/animals/select?q=breed:Shepherd
+```
+
+```
+$curl PUT http://localhost:10018/solr/animals/select \
+?wt=json&q=nickname:Rin%20breed:Shepherd&q.op=and
+```
 
 ### Riakのインデックス
 
+```
+$curl -i -X PUT http://localhost:10018/buckets/animals/keys/blue \
+ -H "x-riak-index-mascot_bin: butler" \
+ -H "x-riak-index-version_int: 2" \
+ -d '{"nickname" : "Blue II", "breed" : "English Bulldog"}'
+```
 
-
+```
+$curl PUT http://localhost:10018/buckets/animals/index/mascot_bin/butler
+```
 
 
 ## ３日目の宿題・調べてみよう
