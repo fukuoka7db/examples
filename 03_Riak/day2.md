@@ -244,9 +244,11 @@ curl http://localhost:10018/buckets/animals/keys/ace?r=all
 dev/dev3/bin/riak stop
 ```
 
-7つのデータベース7つの世界 第3章Riak2日目のハマりどころ
- P73の手順通りにやってみても、404 Object Not Foundが返らない件。
-[http://qiita.com/akm/items/d33472936f6fccf6b26b](http://qiita.com/akm/items/d33472936f6fccf6b26b)
+P73の手順通りにやってみても、404 Object Not Foundが返らない件。  
+ 
+7つのデータベース7つの世界 第3章Riak2日目のハマりどころ  
+[http://qiita.com/akm/items/d33472936f6fccf6b26b](http://qiita.com/akm/items/d33472936f6fccf6b26b)  
+ 
 Riakでのrについて - Togetterまとめ [http://togetter.com/li/686949](http://togetter.com/li/686949)
 
 ```
