@@ -64,7 +64,7 @@ $curl http://localhost:10018/buckets/animals/keys
 
 dev/dev1/etc/app.configのjs_source_dirに指定したディレクトリに以下を配置
 
-[https://github.com/fukuoka7db/examples/blob/master/03_Riak/my_validators.js](https://github.com/fukuoka7db/examples/blob/master/03_Riak/my_validators.js)
+[https://github.com/fukuoka7db/examples/blob/master/03_Riak/my_validators.js](my_validators.js)
 
 dev2、dev3にも実施
 
