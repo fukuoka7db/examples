@@ -28,7 +28,7 @@ curl -i http://localhost:10018/buckets/animals/keys/bruiser?return_body=true
 ```
 curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser \
  -H "X-Riak-ClientId: jane" \
- -H "X-Riak-Vclock: a85xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+ -H "X-Riak-Vclock: a85hYGBgzGDKBVIcR4M2cgfPO8mZwZTImMfK0L7M6yxfFgA=" \
  -H "Content-Type: application/json" \
  -d '{"score":2}'
 ```
@@ -36,7 +36,7 @@ curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser \
 ```
 curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser \
  -H "X-Riak-ClientId: rakshith" \
- -H "X-Riak-Vclock: a85xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+ -H "X-Riak-Vclock: a85hYGBgzGDKBVIcR4M2cgfPO8mZwZTImMfK0L7M6yxfFgA=" \
  -H "Content-Type: application/json" \
  -d '{"score":4}'
 ```
@@ -51,11 +51,20 @@ curl -i http://localhost:10018/buckets/animals/keys/bruiser?return_body=true\
 ```
 
 ```
-curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser \
+curl -i http://localhost:10018/buckets/animals/keys/bruiser?vtag=2MwmqvZBy1ejARHI28MWAh
+```
+
+下記のコンフリクト解消時のX-Riak-Vclockは上記で取得した値を使用する
+```
+curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser?return_body=true \
  -H "X-Riak-ClientId: jane" \
- -H "X-Riak-Vclock: a85xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+ -H "X-Riak-Vclock: a85hYGBgzGDKBVIcR4M2cgfPO8mZwZTImsfKsHWl11m+LAA=" \
  -H "Content-Type: application/json" \
  -d '{"score":3}'
+```
+
+```
+curl -i http://localhost:10018/buckets/animals/keys/bruiser?return_body=true
 ```
 
 ### 時間の成長
