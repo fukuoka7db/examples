@@ -5,24 +5,24 @@
 ### 実践ベクタークロック
 
 ```
-$curl -X PUT http://localhost:10018/buckets/animals/keys \
+curl -X PUT http://localhost:10018/buckets/animals/keys \
  -H "Content-Type: application/json" \
  -d '{"props":{"allow_mult":true}}'
 ```
 
 ```
-$curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser \
+curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser \
  -H "X-Riak-ClientId: bob" \
  -H "Content-Type: application/json" \
  -d '{"score":3}'
 ```
 
 ```
-$curl -i http://localhost:10018/buckets/animals/keys/bruiser?return_body=true
+curl -i http://localhost:10018/buckets/animals/keys/bruiser?return_body=true
 ```
 
 ```
-$curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser \
+curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser \
  -H "X-Riak-ClientId: jane" \
  -H "X-Riak-Vclock: a85xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
  -H "Content-Type: application/json" \
@@ -30,7 +30,7 @@ $curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser \
 ```
 
 ```
-$curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser \
+curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser \
  -H "X-Riak-ClientId: rakshith" \
  -H "X-Riak-Vclock: a85xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
  -H "Content-Type: application/json" \
@@ -38,16 +38,16 @@ $curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser \
 ```
 
 ```
-$curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser?return_body=true
+curl -i http://localhost:10018/buckets/animals/keys/bruiser?return_body=true
 ```
 
 ```
-$curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser?return_body=true\
+curl -i http://localhost:10018/buckets/animals/keys/bruiser?return_body=true\
  -H "Accept: multipart/mixed"
 ```
 
 ```
-$curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser \
+curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser \
  -H "X-Riak-ClientId: jane" \
  -H "X-Riak-Vclock: a85xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
  -H "Content-Type: application/json" \
@@ -57,7 +57,7 @@ $curl -i -X PUT http://localhost:10018/buckets/animals/keys/bruiser \
 ### 時間の成長
 
 ```
-$curl http://localhost:10018/buckets/animals/keys
+curl http://localhost:10018/buckets/animals/keys
 ```
 
 ### 事前／事後コミットフック
