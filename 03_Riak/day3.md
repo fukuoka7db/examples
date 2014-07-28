@@ -70,7 +70,7 @@ curl -i http://localhost:10018/buckets/animals/keys/bruiser?return_body=true
 ### 時間の成長
 
 ```
-curl http://localhost:10018/buckets/animals/keys
+curl http://localhost:10018/buckets/animals/props
 ```
 
 ### 事前／事後コミットフック
