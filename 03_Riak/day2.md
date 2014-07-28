@@ -244,15 +244,12 @@ curl http://localhost:10018/buckets/animals/keys/ace?r=all
 dev/dev3/bin/riak stop
 ```
 
-P73の手順通りにやってみても、404 Object Not Foundが返らない。
-以下が仕事してる？
-
-[http://basho.co.jp/tag/read-repair/](READ REPAIR(basho.co.jp))
-[http://basho.co.jp/tag/active-anti-entropy/](ActiveAntiEntropy(basho.co.jp))
-
-歴史的にRiakは、キーが参照されるたびに不整合を解消する、受動的なアンチエントロピーメカニズムである リードリペア に頼っています。リードリペアによって、読み出しのリクエスト後に同じ正しいデータを複数のvnodeが持っていることを保証できます。
-Bashoはリリース1.3で、読み出しのリクエストがなくても同様の修復ができるように、アクティブアンチエントロピー（AAE） という機能を組み込みました。これによって、古いデータがクライアントに渡される可能性が下がります。
-
+P73の手順通りにやってみても、404 Object Not Foundが返らない件。  
+ 
+7つのデータベース7つの世界 第3章Riak2日目のハマりどころ  
+[http://qiita.com/akm/items/d33472936f6fccf6b26b](http://qiita.com/akm/items/d33472936f6fccf6b26b)  
+ 
+Riakでのrについて - Togetterまとめ [http://togetter.com/li/686949](http://togetter.com/li/686949)
 
 ```
 curl -i http://localhost:10018/buckets/animals/keys/ace?r=all
