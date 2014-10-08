@@ -37,6 +37,8 @@ db.system.indexes.find()
 
 ### 144
 
+"+1 800-5650001"は見つかるものを使うこと
+
 ```
 db.phones.find({display: "+1 800-5650001"}).explain()
 ```
@@ -49,6 +51,9 @@ db.phones.ensureIndex(
   { unique : true, dropDups : true }
 )
 ```
+dropDupsは警告あり。
+Specifying { dropDups: true } may delete data from your database. Use with extreme caution.
+
 
 再度
 
@@ -66,6 +71,12 @@ db.phones.find({display: "+1 800-5650001"})
 db.system.profile.find()
 ```
 
+見やすく
+
+```
+db.system.profile.find({}, {op:1, query: 1, ts: 1, ns: 1, info: 1, millis: 1})
+```
+
 ネストした値にバックグラウンドでインデックスを作成
 
 ```
@@ -76,6 +87,13 @@ db.phones.ensureIndex({ "components.area" : 1 }, { background : 1 })
 
 ```
 db.system.indexes.find({ "ns" : "book.phones" })
+```
+
+なお、インデックスの削除は・・・dropIndex
+
+```
+db.phones.dropIndex({display:1})
+db.phones.getIndexes()
 ```
 
 ### 146
@@ -132,7 +150,7 @@ db.phones.group({
   finalize: function(out) {
     var ary = [];
     for(var p in out.prefixes) { ary.push( parseInt( p ) ); }
-    put.prefixes = ary;
+    out.prefixes = ary;
   }
 })[0].prefixes
 ```
@@ -251,6 +269,10 @@ map = function() {
   emit({digits : digits, country : this.components.country}, {count : 1});
 }
 ```
+```
+load("code/mongo/map_1.js")
+```
+
 
 code/mongo/reduce_1.js
 ```
@@ -262,6 +284,10 @@ reduce = function(key, values) {
   return { count : total };
 }
 ```
+```
+load("code/mongo/reduce_1.js")
+```
+
 
 ```
 results = db.runCommand({
